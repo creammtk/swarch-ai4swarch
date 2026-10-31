@@ -2,19 +2,19 @@
 
 # บันทึกการใช้ prompt
 
-**ชื่อ / รหัสนิสิต:**
-**agent ที่ใช้:** เช่น GitHub Copilot (Agent mode), Gemini Code Assist, Gemini CLI, Claude Code, Codex, Cursor, Cline: …
-**โมเดล:** …
-**แพ็กเกจที่ใช้:** เช่น Copilot Student, Copilot Free, Gemini รุ่นฟรี: …
+**ชื่อ / รหัสนิสิต:** มณฑกาญจน์ นาเพาะผล 6870217321
+**agent ที่ใช้:** Claude Code,
+**โมเดล:** Opus 5.5
+**แพ็กเกจที่ใช้:**
 
 บันทึกทุกคำขอที่ส่งให้ agent ช่อง "ไฟล์ที่ agent อ่าน" คือไฟล์ที่ agent รายงาน หรือที่นิสิตเห็นว่า agent เปิด
 
-| # | งาน / run | agent + โมเดล | ข้อความที่ส่ง (ย่อ) | ไฟล์ที่ agent อ่าน | อยู่ในขอบเขตหลักฐานที่อนุญาตหรือไม่ | มีประโยชน์ (1–5) | หมายเหตุ |
-|---|---|---|---|---|---|---|---|
-| 1 | 1-A | | `prompts/1-…` run A | | | | |
-| 2 | 1-B | | `prompts/1-…` run B | | | | |
-| 3 | 2-a | | `prompts/2-…` run a | | | | |
-| 4 | 2-b | | `prompts/2-…` run b | | | | |
-| 5 | 3 | | `prompts/3-…` | | | | |
-| 6 | | | | | | | |
-| 7 | | | | | | | |
+| #   | งาน / run                           | agent + โมเดล                | ข้อความที่ส่ง (ย่อ)                                                                     | ไฟล์ที่ agent อ่าน                                                                                                                                                 | อยู่ในขอบเขตหลักฐานที่อนุญาตหรือไม่                                                                     | มีประโยชน์ (1–5) | หมายเหตุ                                                                                             |
+| --- | ----------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------- |
+| 1   | 1-A                                 | Claude Code, Claude Opus 5.5 | `prompts/1-…` run A, evidence: `protos/demo.proto`                                      | `prompts/1-recover-architecture.md`, `protos/demo.proto`                                                                                                           | ✅ อยู่ในขอบเขต                                                                                         | 5                | ระบุ 9 service แต่ไม่มี dependency เลย                                                               |
+| 2   | 1-B                                 | Claude Code, Claude Opus 5.5 | `prompts/1-…` run B, evidence: `demo.proto` + `kubernetes-manifests/`                   | `prompts/1-recover-architecture.md`, `exercise/01-recover-architecture.md` (เฉพาะบล็อกข้อความ run B), `demo.proto`, ทุกไฟล์ใน `kubernetes-manifests/`              | ⚠️ เกือบทั้งหมด: อ่านใบงาน 01 เพื่อเอาค่า input โดยนิสิตอนุญาต แต่ไม่ได้ใช้เป็นหลักฐาน                  | 5                | 12 container, 17 dependency                                                                          |
+| 3   | 2-a                                 | Claude Code, Claude Opus 5.5 | `prompts/2-…` run a, context: none, language: Thai                                      | `prompts/2-write-adr.md`, `docs/adr/template.md`                                                                                                                   | ✅ อยู่ในขอบเขต (ตามที่ output รายงาน)                                                                  | 5                | ไม่มีตัวเลขจาก scenario                                                                              |
+| 4   | 2-b                                 | Claude Code, Claude Opus 5.5 | `prompts/2-…` run b, context: scenario + ADR 0001 + checkout `main.go`, language: Thai  | `prompts/2-write-adr.md`, `docs/adr/template.md`, `docs/scenario.md`, `docs/adr/0001-use-redis-for-cart-storage.md`, `src/checkoutservice/main.go`                 | ✅ อยู่ในขอบเขต (ตามที่ output รายงาน)                                                                  | 5                | เลือก RabbitMQ                                                                                       |
+| 5   | 3                                   | Claude Code, Claude Opus 5.5 | `prompts/3-…`, adr: `docs/adr/0002-publish-order-events-to-rabbitmq.md`, language: Thai | `prompts/3-review-adr.md`, `docs/adr/0002-…`, `docs/scenario.md`                                                                                                   | ✅ อยู่ในขอบเขต                                                                                         | 5                | ไม่ได้แก้ ADR                                                                                        |
+| 6   | ช่วยตรวจใบงาน (session เดียวกับ #5) | Claude Code, Claude Opus 5.5 | ขอให้สรุป 1A/1B, ตรวจใบงาน 01–04 และตรวจ dependency กับโค้ด                             | `README.md`, `exercise/*.md`, `exercise/outputs/*`, `src/checkoutservice/main.go`, `src/frontend/main.go`, `src/frontend/rpc.go`, `src/cartservice/src/Startup.cs` | ❌ นอกขอบเขต prompt (ไม่ใช่งานจาก `prompts/`)                                                           | 1                | agent ปฏิเสธการเขียนความเห็นและ reflection แทนนิสิต; ช่วยหาบรรทัดที่เป็นหลักฐานสำหรับตารางตรวจ Run B |
+| 7   | ★ โบนัส                             | Claude Code, Claude Opus 5.5 | `prompts/bonus-…`, evidence: `demo.proto`, checkout `main.go`, frontend `main.go`       | 3 ไฟล์ evidence                                                                                                                                                    | ⚠️ ไม่ได้เริ่ม session ใหม่ (agent เคยอ่าน manifests และ source อื่นมาก่อน ตามหมายเหตุในหัวไฟล์ output) |                  |                                                                                                      |
